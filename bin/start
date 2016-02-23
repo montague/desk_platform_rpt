@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require "bundler/setup"
+require 'dotenv'
 require "desk_platform_rpt"
 
+Dotenv.load
 DeskPlatformRpt.start
