@@ -1,14 +1,27 @@
 require "desk_platform_rpt/version"
 require "desk_platform_rpt/server"
 require "desk_platform_rpt/client"
+# TODO remove this when finished developing
+require 'byebug'
 
 module DeskPlatformRpt
   def self.start
     # TODO clean this up
-    if ENV.key?('DO')
-      puts "Environment variables loaded successfully: #{ENV['DO']}"
-    end
+    #start_server!
+    start_client!
+  end
 
+  def self.start_client!
+    client = Client.new(
+      api_key: ENV['TWITTER_API_KEY'],
+      api_secret: ENV['TWITTER_API_SECRET'],
+      access_token: ENV['TWITTER_TOKEN'],
+      access_token_secret: ENV['TWITTER_TOKEN_SECRET']
+    )
+    client.connect_and_write_contents
+  end
+
+  def self.start_server!
     puts "starting server..."
     server = WEBrick::HTTPServer.new(Port: 3000)
     server.mount "/top10", Server
@@ -32,6 +45,7 @@ module DeskPlatformRpt
     #Signal.trap("TERM") do
       #server.shutdown
     #end
+
   end
 
 end

@@ -32,4 +32,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "3.4.0"
   spec.add_development_dependency "oauth", "0.5.0"
   spec.add_development_dependency "dotenv", "2.1.0"
+  spec.add_development_dependency "byebug", "8.2.2"
 end
