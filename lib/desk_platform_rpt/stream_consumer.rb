@@ -22,20 +22,19 @@ module DeskPlatformRpt
 
       lines.each_slice(2) do |length, message|
         length = length.to_i
+        # could also use the new 2.3.0 message&.chomp! syntax
         message && message.chomp!
         if message.nil?
           @number_of_bytes_left_to_read = length
+        elsif message.size == length
+          @raw_messages_queue.push(message)
         elsif message.size < length
           @number_of_bytes_left_to_read = length - message.size
           @fragment << message
-        elsif message.size == length
-          @raw_messages_queue.push(message)
         else
-          # Twitter is being weird
-          raise %Q{
-                Twitter has sent an incorrect value for message length.
-                Expected length was #{length} but message was #{message.size} bytes.
-          }
+          # Twitter is being weird. Shouldn't happen.
+          raise TwitterError, "Twitter has sent an incorrect value for message length. "\
+                "Expected length was #{length} but message length was #{message.size} bytes."
         end
       end
     end
