@@ -79,8 +79,9 @@ describe DeskPlatformRpt::TweetStreamConsumer do
       expect {
         consumer.consume("4\r\n1234556\r\n4\r\n1234")
       }.to raise_error(DeskPlatformRpt::TweetStreamConsumer::TwitterError,
-                       'Twitter has sent an incorrect value for message length. '\
-                       'Expected length was 4 but message length was 9 bytes.'
+                       "Twitter has sent an incorrect value for message length. "\
+                       "Expected length was 4 but message length was 9 bytes. "\
+                       'Length: 4 Message: "1234556\r\n"'
                       )
 
     end

@@ -31,9 +31,12 @@ module DeskPlatformRpt
         else
           # We'd log this via an exception tracking service (eg HoneyBadger)
           raise TwitterError, "Twitter has sent an incorrect value for message length. "\
-                "Expected length was #{length} but message length was #{message.size} bytes."
+                "Expected length was #{length} but message length was #{message.size} bytes. "\
+                "Length: #{length.inspect} "\
+                "Message: #{message.inspect}"\
         end
       end
+      puts "=============QUEUE SIZE: #{@raw_messages_queue.size}"
     end
 
     private

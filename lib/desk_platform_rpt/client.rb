@@ -3,28 +3,23 @@ require 'oauth'
 
 module DeskPlatformRpt
   class Client
-    def initialize(credentials)
+
+    attr_reader :tweet_stream_consumer
+
+    def initialize(tweet_stream_consumer, credentials)
+      @tweet_stream_consumer = tweet_stream_consumer
       @credentials = credentials
     end
 
-    def connect_and_write_contents
+    def connect_and_consume
       uri = URI('https://stream.twitter.com/1.1/statuses/sample.json?delimited=length')
       Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
         request = Net::HTTP::Get.new(uri.request_uri)
-        params = {
-          api_key: @api_key, api_secret: @api_secret,
-          access_token: @access_token, access_token_secret: @access_token_secret
-        }
         sign_request(request, @credentials)
         http.request(request) do |response|
-          File.open('sample.txt', 'w') do |io|
-            response.read_body do |chunk|
-              #puts ("=" * 50) + "BEGIN CHUNK"
-              #byebug
-              #puts chunk
-              io.write(chunk)
-              #puts ("=" * 50) + "END CHUNK"
-            end
+          response.read_body do |chunk|
+            puts chunk.slice(0, 50)
+            tweet_stream_consumer.consume(chunk)
           end
         end
       end
