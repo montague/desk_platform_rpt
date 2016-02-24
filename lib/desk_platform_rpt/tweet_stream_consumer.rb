@@ -1,4 +1,3 @@
-require 'json'
 module DeskPlatformRpt
   class TweetStreamConsumer
     class TwitterError < StandardError; end
