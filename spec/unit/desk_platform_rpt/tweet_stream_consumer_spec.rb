@@ -17,11 +17,9 @@ describe DeskPlatformRpt::TweetStreamConsumer do
       expect(consumer.raw_messages_queue).to be_empty
     end
 
-    it 'loads the stream_sample on its queue' do
+    it "loads the stream_sample on its queue with a chunk size of 1500" do
       file_path = File.expand_path('../../../fixtures/stream_sample.txt', __FILE__)
-      # TODO random chunk size?
-      chunk_size = 100000
-
+      chunk_size = 1500 # nice and chunky
       File.open(file_path) do |io|
         while chunk = io.read(chunk_size)
           consumer.consume(chunk)

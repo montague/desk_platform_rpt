@@ -5,9 +5,6 @@ module DeskPlatformRpt
     attr_reader :raw_messages_queue, :fragment, :number_of_bytes_left_to_read
 
     def initialize
-      # first chunk will start with the number of bytes to read
-      # last chunk will be cut off and will not have the full number of bytes
-      # push each chunk into a queue
       @raw_messages_queue = Queue.new
       @fragment = ""
       @number_of_bytes_left_to_read = 0
@@ -19,6 +16,9 @@ module DeskPlatformRpt
         assemble_chunked_message(lines.shift)
       end
 
+      # Based on assumptions that first chunk received will begin
+      # with a length and will be followed by \r\n and a message.
+      # https://dev.twitter.com/streaming/overview/processing
       lines.each_slice(2) do |length, message|
         length = length.to_i
         if message.nil?
