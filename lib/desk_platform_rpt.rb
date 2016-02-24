@@ -1,7 +1,8 @@
-require "desk_platform_rpt/version"
-require "desk_platform_rpt/server"
-require "desk_platform_rpt/client"
-require "desk_platform_rpt/tweet_parser"
+require 'desk_platform_rpt/version'
+require 'desk_platform_rpt/server'
+require 'desk_platform_rpt/client'
+require 'desk_platform_rpt/stream_consumer'
+
 # TODO remove this when finished developing
 require 'byebug'
 
