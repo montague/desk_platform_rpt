@@ -11,7 +11,7 @@ module DeskPlatformRpt
     end
 
     def consume(chunk)
-      lines = chunk.lines
+      lines = chunk.lines("\r\n")
       if @number_of_bytes_left_to_read > 0
         assemble_chunked_message(lines.shift)
       end
@@ -30,10 +30,13 @@ module DeskPlatformRpt
           @fragment << message
         else
           # We'd log this via an exception tracking service (eg HoneyBadger)
-          raise TwitterError, "Twitter has sent an incorrect value for message length. "\
-                "Expected length was #{length} but message length was #{message.size} bytes. "\
-                "Length: #{length.inspect} "\
-                "Message: #{message.inspect}"\
+          #File.open('bad_length.txt', 'w') do |f|
+            #f.write(chunk)
+          #end
+          #raise TwitterError, "Twitter has sent an incorrect value for message length. "\
+                #"Expected length was #{length} but message length was #{message.size} bytes. "\
+                #"Length: #{length.inspect} "\
+                #"Message: #{message.inspect}"
         end
       end
       puts "=============QUEUE SIZE: #{@raw_messages_queue.size}"
@@ -46,6 +49,9 @@ module DeskPlatformRpt
         @fragment << fragment_suffix
       elsif fragment_suffix.size > @number_of_bytes_left_to_read
         # We'd log this via an exception tracking service (eg HoneyBadger)
+        File.open('fragment.txt', 'w') do |f|
+            f.write(fragment_suffix)
+          end
         raise TwitterError, "Expected a fragment of length #{@number_of_bytes_left_to_read} "\
           "but length was #{fragment_suffix.size}"
       else

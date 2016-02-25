@@ -29,6 +29,14 @@ describe DeskPlatformRpt::TweetStreamConsumer do
       expect(consumer.raw_messages_queue.size).to eq 26
     end
 
+    it 'consumes a message that has emoji' do
+      consumer.consume("6\r\n1234\r\n6\r\n567😀\r\n")
+
+      expect(consumer.raw_messages_queue.pop).to eq "1234\r\n"
+      expect(consumer.raw_messages_queue.pop).to eq "567😀\r\n"
+      expect(consumer.raw_messages_queue).to be_empty
+    end
+
     it 'assembles chunked messages when the length is not followed by a message' do
       consumer.consume("6\r\n1234\r\n6\r\n")
       consumer.consume("5678\r\n")
