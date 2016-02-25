@@ -18,8 +18,8 @@ module DeskPlatformRpt
         sign_request(request, @credentials)
         http.request(request) do |response|
           response.read_body do |chunk|
-            puts chunk.slice(0, 50)
             tweet_stream_consumer.consume(chunk)
+            puts "========>#{chunk.slice(0, 50)}"
           end
         end
       end
