@@ -13,18 +13,17 @@ module DeskPlatformRpt
         unless @tweets_hash.key?(tweet.timestamp)
           @tweets_hash[tweet.timestamp] = []
         end
-        @tweets_hash[tweet.timestamp] |= tweet.hash_tags
+        @tweets_hash[tweet.timestamp] += tweet.hash_tags
       end
     end
 
-    def top_10_tweets_in_last_60_seconds
-      now = Time.now.to_i
+    def top_10_tweets_in_last_60_seconds(now = Time.now.to_i)
       last_60_seconds = now - 60
       counts = {}
       # From 60 seconds back in time to now,
       # grab each entry in the tweets hash and tally them up.
       (last_60_seconds..now).each do |timestamp|
-        (@tweets_hash[timestamp] || []).each do |hash_tag|
+        @tweets_hash.fetch(timestamp, []).each do |hash_tag|
           if counts.key?(hash_tag)
             counts[hash_tag] += 1
           else
@@ -32,6 +31,7 @@ module DeskPlatformRpt
           end
         end
       end
+      counts.values.sort.map {|v| counts.key(v)}.reverse
     end
   end
 end
