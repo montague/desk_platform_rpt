@@ -15,14 +15,14 @@ module DeskPlatformRpt
         Thread.new do
           while raw_message = work_queue.pop
             tweet = parser.parse_tweet(raw_message)
-            puts "===========>worker #{i} PARSING 1 TWEET of #{work_queue.size}"
+            #puts "===========>worker #{i} PARSING 1 TWEET of #{work_queue.size}"
             #puts "------->#{parser.parse_created_at(tweet)}"
           end
-          puts "======>thread #{i} ALL DONE!"
+          #puts "======>thread #{i} ALL DONE!"
         end
       end
       workers.map(&:join)
-      puts "===========>WORKER THREADS DONE!"
+      #puts "===========>WORKER THREADS DONE!"
     end
   end
 end

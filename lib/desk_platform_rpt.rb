@@ -1,7 +1,7 @@
 require 'desk_platform_rpt/version'
 require 'desk_platform_rpt/server'
 require 'desk_platform_rpt/client'
-require 'desk_platform_rpt/tweet_stream_consumer'
+require 'desk_platform_rpt/twitter_stream_consumer'
 require 'desk_platform_rpt/tweet_parser'
 require 'desk_platform_rpt/worker_pool'
 
@@ -16,11 +16,11 @@ module DeskPlatformRpt
   end
 
   def self.start_client!
-    tweet_stream_consumer = TweetStreamConsumer.new
-    raw_messages_queue = tweet_stream_consumer.raw_messages_queue
+    twitter_stream_consumer = TwitterStreamConsumer.new
+    raw_messages_queue = twitter_stream_consumer.raw_messages_queue
     worker_pool = WorkerPool.new
     client = Client.new(
-      tweet_stream_consumer,
+      twitter_stream_consumer,
       api_key: ENV['TWITTER_API_KEY'],
       api_secret: ENV['TWITTER_API_SECRET'],
       access_token: ENV['TWITTER_TOKEN'],

@@ -12,7 +12,7 @@ module DeskPlatformRpt
     end
 
     def connect_and_consume
-      uri = URI('https://stream.twitter.com/1.1/statuses/sample.json?delimited=length')
+      uri = URI('https://stream.twitter.com/1.1/statuses/sample.json')
       Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
         request = Net::HTTP::Get.new(uri.request_uri)
         sign_request(request, @credentials)
