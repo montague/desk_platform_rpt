@@ -1,6 +1,8 @@
 module DeskPlatformRpt
   class TopTweets
 
+    attr_reader :tweets_hash
+
     def initialize
       @tweets_hash = {}
       @lock = Mutex.new
@@ -11,14 +13,25 @@ module DeskPlatformRpt
         unless @tweets_hash.key?(tweet.timestamp)
           @tweets_hash[tweet.timestamp] = []
         end
-        @tweets_hash[tweet.timestamp] << tweet.hash_tags
-        puts "========top tweet hash tags!!"
-        @tweets_hash
+        @tweets_hash[tweet.timestamp] |= tweet.hash_tags
       end
     end
 
     def top_10_tweets_in_last_60_seconds
-      @tweets_hash
+      now = Time.now.to_i
+      last_60_seconds = now - 60
+      counts = {}
+      # From 60 seconds back in time to now,
+      # grab each entry in the tweets hash and tally them up.
+      (last_60_seconds..now).each do |timestamp|
+        (@tweets_hash[timestamp] || []).each do |hash_tag|
+          if counts.key?(hash_tag)
+            counts[hash_tag] += 1
+          else
+            counts[hash_tag] = 1
+          end
+        end
+      end
     end
   end
 end
