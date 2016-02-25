@@ -19,7 +19,7 @@ module DeskPlatformRpt
       text.scan(/#\w+/)
     end
 
-    def is_deletion?
+    def deletion?
       @is_deletion
     end
   end

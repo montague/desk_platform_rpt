@@ -21,7 +21,9 @@ describe DeskPlatformRpt::Tweet do
       let(:tweet) { DeskPlatformRpt::Tweet.new(deleted_tweet_payload) }
 
 
-      it 'correctly sets the is_deletion flag'
+      it 'correctly sets the is_deletion flag' do
+        expect(tweet).to be_deletion
+      end
     end
   end
 end
