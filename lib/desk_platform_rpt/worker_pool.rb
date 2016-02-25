@@ -10,7 +10,7 @@ module DeskPlatformRpt
         Thread.new do
           while raw_message = work_queue.pop
             tweet = Tweet.new(raw_message)
-            top_tweets.add_tweet(tweet) unless tweet.is_deletion?
+            top_tweets.add_tweet(tweet) unless tweet.deletion?
             puts "===========added tweet to top_tweets"
           end
         end
