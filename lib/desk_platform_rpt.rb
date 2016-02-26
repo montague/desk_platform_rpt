@@ -25,22 +25,24 @@ module DeskPlatformRpt
 
     Signal.trap :QUIT do
       puts "Shutting down gracefully..."
-      stop_client
-      stop_server
+      stop_service
       exit
     end
 
-    def self.start
+    def self.stop_service
+      stop_client
+      stop_server
+    end
+
+    def self.start_service
+      ensure_credentials!
       @@top_tweets = TopTweets.new
       @@twitter_stream_consumer = TwitterStreamConsumer.new
       @@workers = WorkerPool.new
 
       @@client = Client.new(
         @@twitter_stream_consumer,
-        api_key: ENV['TWITTER_API_KEY'],
-        api_secret: ENV['TWITTER_API_SECRET'],
-        access_token: ENV['TWITTER_TOKEN'],
-        access_token_secret: ENV['TWITTER_TOKEN_SECRET']
+        @@credentials
       )
 
       @@threads = [
@@ -84,6 +86,22 @@ module DeskPlatformRpt
 
     def self.stop_server
       @@server.stop
+    end
+
+    def self.ensure_credentials!
+      @@credentials = {
+        api_key: ENV['TWITTER_API_KEY'],
+        api_secret: ENV['TWITTER_API_SECRET'],
+        access_token: ENV['TWITTER_TOKEN'],
+        access_token_secret: ENV['TWITTER_TOKEN_SECRET']
+      }
+      @@credentials.each do |key, value|
+        if value.strip.empty?
+          # TODO collect missing keys and list all missing instead
+          # of forcing the user to track down one key at a time
+          raise "Config key '#{key}' is missing and is required."
+        end
+      end
     end
   end
 end

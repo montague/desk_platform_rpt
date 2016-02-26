@@ -22,6 +22,8 @@ module DeskPlatformRpt
     end
 
     def top_10_tweets_in_last_60_seconds(now = Time.now.to_i)
+      # Basic logging feedback that tweets are being processed
+      puts "=====unique tweet timestamps: #{@tweets_hash.size}"
       last_60_seconds = now - 60
       counts = {}
       # From 60 seconds back in time to now,

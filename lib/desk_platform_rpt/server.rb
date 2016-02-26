@@ -11,7 +11,7 @@ module DeskPlatformRpt
     def do_GET(request, response)
       response.status = 200
       response.content_type = "application/json"
-      response.body = JSON.generate(content: @top_tweets.top_10_tweets_in_last_60_seconds)
+      response.body = JSON.generate(top_tweets: @top_tweets.top_10_tweets_in_last_60_seconds)
     end
   end
 end

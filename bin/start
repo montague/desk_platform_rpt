@@ -5,4 +5,4 @@ require 'dotenv'
 require "desk_platform_rpt"
 
 Dotenv.load
-DeskPlatformRpt::Runner.start
+DeskPlatformRpt::Runner.start_service
