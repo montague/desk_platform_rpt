@@ -8,22 +8,22 @@ require 'desk_platform_rpt/top_tweets'
 
 module DeskPlatformRpt
   class Runner
-    trap :INT do
+    Signal.trap :INT do
       puts "Later..."
       exit
     end
 
-    trap :TERM do
+    Signal.trap :TERM do
       puts "Byeeeeee..."
       exit
     end
 
-    trap :HUP do
+    Signal.trap :HUP do
       puts "Closing and reopening twitter stream, resetting stats..."
-      reset
+      restart_client
     end
 
-    trap :QUIT do
+    Signal.trap :QUIT do
       puts "Shutting down gracefully..."
       stop_client
       stop_server
@@ -50,24 +50,26 @@ module DeskPlatformRpt
       @@threads.map(&:join)
     end
 
-    def self.reset
-      stop_client
+    def self.restart_client
+      stop_client # close connection
+      @@workers.stop
       @@twitter_stream_consumer.reset
       @@top_tweets.reset
-      start_client
+      @@client_threads.map(&:terminate)
+      Thread.new { start_client }.run
     end
 
     def self.start_client
       raw_messages_queue = @@twitter_stream_consumer.raw_messages_queue
-      threads = []
-      threads << Thread.new do
+      @@client_threads = []
+      @@client_threads << Thread.new do
         @@client.connect_and_consume
       end
 
-      threads << Thread.new do
+      @@client_threads << Thread.new do
         @@workers.consume_tweet_queue!(raw_messages_queue, @@top_tweets)
       end
-      threads.each(&:join)
+      @@client_threads.each(&:join)
     end
 
     def self.stop_client
