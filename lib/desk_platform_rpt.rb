@@ -6,73 +6,82 @@ require 'desk_platform_rpt/tweet'
 require 'desk_platform_rpt/worker_pool'
 require 'desk_platform_rpt/top_tweets'
 
-# TODO remove this when finished developing
-require 'byebug'
-
 module DeskPlatformRpt
-  def self.start
-    top_tweets = TopTweets.new
-    twitter_stream_consumer = TwitterStreamConsumer.new
-
-    threads = []
-    threads << Thread.new do
-      start_client!(top_tweets, twitter_stream_consumer)
+  class Runner
+    trap :INT do
+      puts "Later..."
+      exit
     end
 
-    threads << Thread.new do
-      start_server!(top_tweets)
+    trap :TERM do
+      puts "Byeeeeee..."
+      exit
     end
 
-    threads.each(&:join)
+    trap :HUP do
+      puts "Closing and reopening twitter stream, resetting stats..."
+      reset
+    end
+
+    trap :QUIT do
+      puts "Shutting down gracefully..."
+      stop_client
+      stop_server
+      exit
+    end
+
+    def self.start
+      @@top_tweets = TopTweets.new
+      @@twitter_stream_consumer = TwitterStreamConsumer.new
+      @@workers = WorkerPool.new
+
+      @@client = Client.new(
+        @@twitter_stream_consumer,
+        api_key: ENV['TWITTER_API_KEY'],
+        api_secret: ENV['TWITTER_API_SECRET'],
+        access_token: ENV['TWITTER_TOKEN'],
+        access_token_secret: ENV['TWITTER_TOKEN_SECRET']
+      )
+
+      @@threads = [
+        Thread.new { start_client },
+        Thread.new { start_server }
+      ]
+      @@threads.map(&:join)
+    end
+
+    def self.reset
+      stop_client
+      @@twitter_stream_consumer.reset
+      @@top_tweets.reset
+      start_client
+    end
+
+    def self.start_client
+      raw_messages_queue = @@twitter_stream_consumer.raw_messages_queue
+      threads = []
+      threads << Thread.new do
+        @@client.connect_and_consume
+      end
+
+      threads << Thread.new do
+        @@workers.consume_tweet_queue!(raw_messages_queue, @@top_tweets)
+      end
+      threads.each(&:join)
+    end
+
+    def self.stop_client
+      @@client.close
+    end
+
+    def self.start_server
+      @@server = WEBrick::HTTPServer.new(Port: 3000)
+      @@server.mount "/top10", Server, @@top_tweets
+      @@server.start
+    end
+
+    def self.stop_server
+      @@server.stop
+    end
   end
-
-  def self.start_client!(top_tweets, twitter_stream_consumer)
-    raw_messages_queue = twitter_stream_consumer.raw_messages_queue
-    worker_pool = WorkerPool.new
-    client = Client.new(
-      twitter_stream_consumer,
-      api_key: ENV['TWITTER_API_KEY'],
-      api_secret: ENV['TWITTER_API_SECRET'],
-      access_token: ENV['TWITTER_TOKEN'],
-      access_token_secret: ENV['TWITTER_TOKEN_SECRET']
-    )
-
-    threads = []
-    threads << Thread.new do
-      client.connect_and_consume
-    end
-
-    threads << Thread.new do
-      worker_pool.consume_tweet_queue!(raw_messages_queue, top_tweets)
-    end
-    threads.each(&:join)
-  end
-
-  def self.start_server!(top_tweets)
-    puts "starting server..."
-    server = WEBrick::HTTPServer.new(Port: 3000)
-    server.mount "/top10", Server, top_tweets
-    server.start
-    puts "server started: #{server}"
-
-    #Signal.trap("HUP") do
-      ## TODO close and reopen twitter stream, reset all stats to zero
-    #end
-
-    #Signal.trap("QUIT") do
-      ## TODO graceful shutdown. Properly close stream and exit
-      #server.shutdown
-    #end
-
-    Signal.trap("INT") do
-      puts "====received signal int!"
-      server.shutdown
-    end
-
-    #Signal.trap("TERM") do
-      #server.shutdown
-    #end
-
-  end
-
 end

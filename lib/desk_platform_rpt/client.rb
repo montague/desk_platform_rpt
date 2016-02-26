@@ -13,16 +13,18 @@ module DeskPlatformRpt
 
     def connect_and_consume
       uri = URI('https://stream.twitter.com/1.1/statuses/sample.json')
-      Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
-        request = Net::HTTP::Get.new(uri.request_uri)
-        sign_request(request, @credentials)
-        http.request(request) do |response|
-          response.read_body do |chunk|
-            tweet_stream_consumer.consume(chunk)
-            puts "========>#{chunk.slice(0, 50)}"
-          end
+      @http_session = Net::HTTP.start(uri.host, uri.port, use_ssl: true)
+      request = Net::HTTP::Get.new(uri.request_uri)
+      sign_request(request, @credentials)
+      @http_session.request(request) do |response|
+        response.read_body do |chunk|
+          tweet_stream_consumer.consume(chunk)
         end
       end
+    end
+
+    def close
+      @http_session.finish
     end
 
     # From Platform Challenge PDF

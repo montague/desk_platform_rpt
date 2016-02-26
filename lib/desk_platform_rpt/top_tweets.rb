@@ -8,6 +8,10 @@ module DeskPlatformRpt
       @lock = Mutex.new
     end
 
+    def reset
+      @tweets_hash.clear
+    end
+
     def add_tweet(tweet)
       @lock.synchronize do
         unless @tweets_hash.key?(tweet.timestamp)

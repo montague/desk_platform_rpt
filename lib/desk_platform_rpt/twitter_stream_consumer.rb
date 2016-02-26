@@ -13,8 +13,12 @@ module DeskPlatformRpt
       @fragment = ""
     end
 
-    def consume(chunk)
+    def reset
+      @raw_messages_queue.clear
+      @fragment = ""
+    end
 
+    def consume(chunk)
       lines = chunk.lines(MSG_DELIMITER)
       # Assumes beginning of the stream will be a full message.
       lines.each do |line|
