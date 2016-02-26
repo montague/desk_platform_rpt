@@ -29,11 +29,7 @@ module DeskPlatformRpt
       exit
     end
 
-    def self.stop_service
-      stop_client
-      stop_server
-    end
-
+    # Entrypoint
     def self.start_service
       ensure_credentials!
       @@top_tweets = TopTweets.new
@@ -50,6 +46,11 @@ module DeskPlatformRpt
         Thread.new { start_server }
       ]
       @@threads.map(&:join)
+    end
+
+    def self.stop_service
+      stop_client
+      stop_server
     end
 
     def self.restart_client
@@ -96,7 +97,7 @@ module DeskPlatformRpt
         access_token_secret: ENV['TWITTER_TOKEN_SECRET']
       }
       @@credentials.each do |key, value|
-        if value.strip.empty?
+        if value && value.strip.empty?
           # TODO collect missing keys and list all missing instead
           # of forcing the user to track down one key at a time
           raise "Config key '#{key}' is missing and is required."
