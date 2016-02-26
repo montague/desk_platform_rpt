@@ -31,7 +31,7 @@ module DeskPlatformRpt
           end
         end
       end
-      counts.values.sort.map {|v| counts.key(v)}.reverse
+      counts.sort_by{ |k,v| -v }.slice(0,10).map{ |k,v| k }
     end
   end
 end

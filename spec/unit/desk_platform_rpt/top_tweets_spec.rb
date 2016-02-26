@@ -16,19 +16,21 @@ describe DeskPlatformRpt::TopTweets do
 
   describe '#top_10_tweets_in_last_60_seconds' do
     it 'returns the top 10 tweets from the last 60 seconds' do
-      # Low timestamps that we will assert are missing
+      # Add a low timestamp to ensure it doesn't appear in the results
       top_tweets.add_tweet(OpenStruct.new(timestamp: 0, hash_tags: %w(#hi #mom)))
 
       # For each number n, add n tags to the hash_tags array
       # The top tags will be #9, #8, #7...
-      hash_tags = (0..9).flat_map { |i| ("#{i}" * (i + 1)).split('') }.map {|i| "##{i}" }
+      hash_tags = (0..9).flat_map { |i| ("#{i}" * i).split('') }.map {|i| "##{i}" }
+      hash_tags << "#1" # both #1 and #2 appear twice and should appear once in the results
+      hash_tags << "#hahaha"
       # Create the tweets w/in the 60 second window
       (1..61).each do |i|
         top_tweets.add_tweet(OpenStruct.new(timestamp: i, hash_tags: hash_tags))
       end
       expected_top_tweets = top_tweets.top_10_tweets_in_last_60_seconds(61)
 
-      expect(expected_top_tweets).to eq %w(#9 #8 #7 #6 #5 #4 #3 #2 #1 #0)
+      expect(expected_top_tweets).to eq %w(#9 #8 #7 #6 #5 #4 #3 #1 #2 #hahaha)
     end
   end
 end
