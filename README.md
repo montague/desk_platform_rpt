@@ -5,7 +5,8 @@ Hello, Code Reviewer(s)!
 ## Things to note
 1. I used `bundler` to generate the scaffold for this project out of convenience. I don't intend for it to be installed as a gem, so trying to do so may not work.
 2. I developed and tested this using mri ruby `2.3.0`.
-3. Please don't hesitate to reach out with any questions :)
+3. Please don't hesitate to reach out with any questions. There is a lot I'd improve about this, so if you see soemthing that causes a furrowed brow, there's a good chance I also furrowed my brow but decided to focus on other stuff in the interest of time.
+4. This was fun. Thanks!
 
 ## Getting Started
 1. Run `bundle install` to install the dependencies
